@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import json
 import transaction
+import vote
 
 class BlockChain:
 
@@ -84,9 +85,9 @@ class BlockChain:
         }
 
         for t in transactions:
-            if type(t) == transaction.Transaction:
+            if (isinstance(t, transaction.Transaction)):
                 block['transactions'].append(t.to_dict())
-            elif type(t) == dict:
+            elif (type(t) == dict):
                 block['transactions'].append(t)
 
         new_chain = self.chain
@@ -118,6 +119,7 @@ class BlockChain:
 b = BlockChain()
 
 t1 = transaction.Transaction('arvind', 'idkk', '2')
+t2 = vote.Vote('arvind', 'boris')
 
 def client_add_block(b):
 
@@ -127,7 +129,7 @@ def client_add_block(b):
     curr_proof = BlockChain.proof_of_work(prev_proof)
     prev_hash = BlockChain.hash_block(prev_block)
 
-    new_block = b.create_and_add_block(curr_proof, prev_hash, transactions=[t1])
+    new_block = b.create_and_add_block(curr_proof, prev_hash, transactions=[t1, t2])
 
 for i in range(10):
     client_add_block(b)
