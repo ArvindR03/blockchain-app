@@ -13,7 +13,6 @@ class Block:
         data = str(self.index) + str(self.hash) + self.prev_hash + str(self.timestamp) + str(self.transactions)
         return hashlib.sha256(data.encode()).hexdigest()
     
-
 def create_genesis_block():
     return Block(0, "0", int(time.time), [])
     
