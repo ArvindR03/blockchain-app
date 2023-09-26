@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import json
+import transaction
 
 class BlockChain:
 
@@ -31,11 +32,11 @@ class BlockChain:
 
     # this is used to check if a chain is valid
     @staticmethod
-    def is_chain_valid(self, chain):
+    def is_chain_valid(chain):
         prev = chain[0]
 
         for i in range(len(chain)):
-            block = chain[block]
+            block = chain[i]
             if block["previous_hash"] != BlockChain.hash_block([prev]):
                 return False
             
@@ -69,18 +70,33 @@ class BlockChain:
     
 
 
-    # TODO: implement check here to verify
+    # TODO: find a way of returning information to the user that the block was not added
+    # ----- maybe return an error message somehow rather than the block?
+    # TODO: an efficient way of checking that the type of transactions is List
     # this is used to add a block to the chain
-    def create_and_add_block(self, proof, prev_hash):
+    def create_and_add_block(self, proof, prev_hash, transactions: list = []):
         block = {
-            'index' : len(self.chain),
+            'index': len(self.chain),
+            'transactions': [],
             'timestamp': str(datetime.datetime.now()),
             'proof': proof,
             'previous_hash': prev_hash
         }
 
-        self.chain.append(block)
-        return block
+        for t in transactions:
+            if type(t) == transaction.Transaction:
+                block['transactions'].append(t.to_dict())
+            elif type(t) == dict:
+                block['transactions'].append(t)
+
+        new_chain = self.chain
+        new_chain.append(block)
+
+        if BlockChain.is_chain_valid(new_chain):
+            self.chain.append(block)
+            return block
+        else:
+            pass
     
 
 
@@ -101,6 +117,8 @@ class BlockChain:
     
 b = BlockChain()
 
+t1 = transaction.Transaction('arvind', 'idkk', '2')
+
 def client_add_block(b):
 
     prev_block = b.get_previous_block()
@@ -109,10 +127,11 @@ def client_add_block(b):
     curr_proof = BlockChain.proof_of_work(prev_proof)
     prev_hash = BlockChain.hash_block(prev_block)
 
-    new_block = b.create_and_add_block(curr_proof, prev_hash)
+    new_block = b.create_and_add_block(curr_proof, prev_hash, transactions=[t1])
 
 for i in range(10):
     client_add_block(b)
 
 for i in b.chain:
     print(i)
+    print("----------------------")
